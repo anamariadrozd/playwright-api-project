@@ -1,16 +1,40 @@
 import { test, expect } from '@playwright/test';
+// create booking
 test("PUT updates an existing booking", async ({ request }) => {
-
-    const authResponse = await request.post('auth', {
+    const createResponse = await request.post("booking/", {
         data: {
-            username: 'admin',
-            password: 'password123'
+            firstname: "Linda",
+            lastname: "Black",
+            totalprice: 500,
+            depositpaid: true,
+            bookingdates: {
+                checkin: "2026-03-03",
+                checkout: "2026-05-04"
+            },
+            additionalneeds: "Lunch and dinner"
         }
     });
 
-    const authResponseBody = await authResponse.json();
-    const token = authResponseBody.token;
-    const response = await request.put("booking/7", {
+    expect(createResponse.status()).toBe(200);
+
+    const createBody = await createResponse.json();
+    const bookingId = createBody.bookingid;
+
+
+    // auth
+    const authResponse = await request.post("auth", {
+        data: {
+            username: "admin",
+            password: "password123"
+        }
+    });
+
+    expect(authResponse.status()).toBe(200);
+
+    const authBody = await authResponse.json();
+    const token = authBody.token;
+
+    const response = await request.put(`booking/${bookingId}`, {
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -25,15 +49,13 @@ test("PUT updates an existing booking", async ({ request }) => {
                 "checkin": "2024-09-20",
                 "checkout": "2026-06-24"
             },
-              "additionalneeds": "Dinner"
+            "additionalneeds": "Dinner"
 
         },
     })
     expect(response.status()).toBe(200);
 
     const responseBody = await response.json();
-    expect(typeof responseBody).toBe("object");
-
     expect(responseBody.firstname).toBe("John");
     expect(responseBody.lastname).toBe("Wilson");
     expect(responseBody.totalprice).toBe(939);
@@ -44,12 +66,33 @@ test("PUT updates an existing booking", async ({ request }) => {
 
 });
 
+
 test("PUT without token returns 403", async ({ request }) => {
-    const response = await request.put("booking/9", {
+    const createResponse = await request.post("booking/", {
+        data: {
+            firstname: "Jane",
+            lastname: "Connor",
+            totalprice: 500,
+            depositpaid: true,
+            bookingdates: {
+                checkin: "2026-03-03",
+                checkout: "2026-05-04"
+            },
+            additionalneeds: "Lunch and dinner"
+        }
+    });
+
+    expect(createResponse.status()).toBe(200);
+
+    const createBody = await createResponse.json();
+    const bookingId = createBody.bookingid;
+
+
+    const response = await request.put(`booking/${bookingId}`, {
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            
+
         },
         data: {
             "firstname": "John",
@@ -60,7 +103,7 @@ test("PUT without token returns 403", async ({ request }) => {
                 "checkin": "2024-09-20",
                 "checkout": "2026-06-24"
             },
-              "additionalneeds": "Dinner"
+            "additionalneeds": "Dinner"
 
         },
     })
@@ -94,7 +137,7 @@ test("PUT for a non-existing booking returns 405", async ({ request }) => {
                 "checkin": "2024-09-20",
                 "checkout": "2026-06-24"
             },
-              "additionalneeds": "Dinner"
+            "additionalneeds": "Dinner"
 
         },
     })
