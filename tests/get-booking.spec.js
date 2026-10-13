@@ -1,19 +1,37 @@
 import { test, expect } from "@playwright/test";
-test("GET/booking returns a valid response", async ({ request }) => {
+import bookingData from './test-data/booking-data.js';
 
+test("GET/booking returns a valid response", async ({ request }) => {
+    const firstCreateResponse = await request.post("booking/", {
+        data: {
+            ...bookingData
+        }
+    });
+    expect(firstCreateResponse.status()).toBe(200);
+    const firstBooking = await firstCreateResponse.json();
     const response = await request.get("booking");
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
     expect(Array.isArray(responseBody)).toBe(true);
-    expect(responseBody.length).toBeGreaterThan(0);
     for (const value of responseBody) {
         expect(value).toHaveProperty("bookingid");
+        expect(typeof value.bookingid).toBe("number");
     }
+    expect(responseBody).toContainEqual({ bookingid: firstBooking.bookingid });
+
 });
 
 test("GET/booking/{id} returns a valid response", async ({ request }) => {
 
-    const response = await request.get("booking/5");
+    const createResponse = await request.post("booking/", {
+        data: {
+            ...bookingData
+        }
+    });
+    expect(createResponse.status()).toBe(200);
+    const { bookingid } = await createResponse.json();
+
+    const response = await request.get(`booking/${bookingid}`);
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
     expect(responseBody).not.toEqual({});
@@ -32,24 +50,47 @@ test("GET/booking/{id} returns a valid response", async ({ request }) => {
     expect(typeof responseBody.bookingdates).toBe("object");
     expect(typeof responseBody.bookingdates.checkin).toBe("string");
     expect(typeof responseBody.bookingdates.checkout).toBe("string");
+    expect(responseBody.firstname).toBe("Jim");
+    expect(responseBody.lastname).toBe("Brown");
+    expect(responseBody.totalprice).toBe(111);
+    expect(responseBody.depositpaid).toBe(true);
+    expect(responseBody.bookingdates.checkin).toBe("2018-01-01");
+    expect(responseBody.bookingdates.checkout).toBe("2019-01-01");
+    expect(responseBody.additionalneeds).toBe("Breakfast");
 });
 test("GET/booking/firsname&lastname filters returns valid booking IDs", async ({ request }) => {
+    const createResponse = await request.post("booking/", {
+        data: {
+            ...bookingData
+        }
+    });
+    expect(createResponse.status()).toBe(200);
+    const { bookingid } = await createResponse.json();
 
-    const response = await request.get("booking?firstname=James&lastname=Brown");
+    const response = await request.get("booking?firstname=Jim&lastname=Brown");
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
     expect(Array.isArray(responseBody)).toBe(true);
     for (const value of responseBody) {
         expect(value).toHaveProperty("bookingid");
     }
+    expect(responseBody).toContainEqual({ bookingid });
 });
 test("GET/booking/checkin&checkout filters returns valid booking IDs", async ({ request }) => {
+    const createResponse = await request.post("booking/", {
+        data: {
+            ...bookingData
+        }
+    });
+    expect(createResponse.status()).toBe(200);
+    const { bookingid } = await createResponse.json();
 
-    const response = await request.get("booking?checkin=2026-10-11&checkout=2026-10-12");
+    const response = await request.get("booking?checkin=2017-12-31&checkout=2020-01-01");
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
     expect(Array.isArray(responseBody)).toBe(true);
     for (const value of responseBody) {
         expect(value).toHaveProperty("bookingid");
     }
+    expect(responseBody).toContainEqual({ bookingid });
 });

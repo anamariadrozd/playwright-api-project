@@ -1,18 +1,14 @@
 import { test, expect } from '@playwright/test';
+import bookingData from './test-data/booking-data.js';
+import validCredentials from './test-data/auth-credentials.js';
+
+
 test("PATCH partially updates an existing booking", async ({ request }) => {
 
     // create booking
     const createResponse = await request.post("booking/", {
         data: {
-            firstname: "John",
-            lastname: "Black",
-            totalprice: 500,
-            depositpaid: true,
-            bookingdates: {
-                checkin: "2026-02-03",
-                checkout: "2026-03-04"
-            },
-            additionalneeds: "Lunch and dinner"
+            ...bookingData
         }
     });
 
@@ -25,8 +21,7 @@ test("PATCH partially updates an existing booking", async ({ request }) => {
     // auth
     const authResponse = await request.post("auth", {
         data: {
-            username: "admin",
-            password: "password123"
+            ...validCredentials
         }
     });
 
@@ -53,7 +48,13 @@ test("PATCH partially updates an existing booking", async ({ request }) => {
     const patchBody = await patchResponse.json();
 
     expect(patchBody.firstname).toBe("John");
-    expect(patchBody.lastname).toBe("Black");
+    expect(patchBody.lastname).toBe("Brown");
+    expect(patchBody.totalprice).toBe(111);
+    expect(patchBody.depositpaid).toBe(true);
+    expect(patchBody.bookingdates.checkin).toBe("2018-01-01");
+    expect(patchBody.bookingdates.checkout).toBe("2019-01-01");
+    expect(patchBody.additionalneeds).toBe("Breakfast");
+    
 });
 
 
@@ -62,15 +63,7 @@ test("PATCH without token returns 403", async ({ request }) => {
     // create booking
     const createResponse = await request.post("booking/", {
         data: {
-            firstname: "Jim",
-            lastname: "Clarkson",
-            totalprice: 200,
-            depositpaid: true,
-            bookingdates: {
-                checkin: "2026-02-03",
-                checkout: "2026-03-04"
-            },
-            additionalneeds: "Lunch and dinner"
+            ...bookingData,
         }
     });
 
