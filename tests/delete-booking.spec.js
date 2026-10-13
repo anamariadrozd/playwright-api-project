@@ -1,17 +1,13 @@
 import { test, expect } from '@playwright/test';
+import bookingData from './test-data/booking-data.js';
+import validCredentials from './test-data/auth-credentials.js';
+
+
 test("DELETE /booking successfully deletes a booking", async ({ request }) => {
     //create booking
     const createResponse = await request.post('booking/', {
         data: {
-            "firstname": "Ann",
-            "lastname": "Brown",
-            "totalprice": 231,
-            "depositpaid": true,
-            "bookingdates": {
-                "checkin": "2018-02-03",
-                "checkout": "2019-03-02"
-            },
-            "additionalneeds": "Lunch"
+            ...bookingData
         }
     });
     const responseBody = await createResponse.json();
@@ -22,8 +18,7 @@ test("DELETE /booking successfully deletes a booking", async ({ request }) => {
 
     const authResponse = await request.post('auth', {
         data: {
-            username: 'admin',
-            password: 'password123'
+            ...validCredentials
         }
     });
 
@@ -45,15 +40,7 @@ test("DELETE /booking successfully deletes a booking", async ({ request }) => {
 test("DELETE /booking without token returns 403", async ({ request }) => {
     const createResponse = await request.post('booking/', {
         data: {
-            firstname: "Ann",
-            lastname: "Brown",
-            totalprice: 231,
-            depositpaid: true,
-            bookingdates: {
-                checkin: "2018-02-03",
-                checkout: "2019-03-02"
-            },
-            additionalneeds: "Lunch"
+            ...bookingData
         }
     });
     expect(createResponse.status()).toBe(200);
