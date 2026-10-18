@@ -1,5 +1,6 @@
+import bookingData from './test-data/booking-data.js'; 
 import { test, expect } from '@playwright/test';
-import bookingData from './test-data/booking-data.js';
+
 
 test("POST /booking successfully creates a booking", async ({ request }) => {
 

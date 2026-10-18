@@ -1,14 +1,9 @@
-import { test, expect } from "@playwright/test";
 import bookingData from './test-data/booking-data.js';
+import { test, expect } from './fixtures/booking.fixture.js';
 
-test("GET/booking returns a valid response", async ({ request }) => {
-    const firstCreateResponse = await request.post("booking/", {
-        data: {
-            ...bookingData
-        }
-    });
-    expect(firstCreateResponse.status()).toBe(200);
-    const firstBooking = await firstCreateResponse.json();
+test("GET/booking returns a valid response", async ({ request, bookingId }) => {
+
+
     const response = await request.get("booking");
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
@@ -17,21 +12,13 @@ test("GET/booking returns a valid response", async ({ request }) => {
         expect(value).toHaveProperty("bookingid");
         expect(typeof value.bookingid).toBe("number");
     }
-    expect(responseBody).toContainEqual({ bookingid: firstBooking.bookingid });
+    expect(responseBody).toContainEqual({ bookingid: bookingId });
 
 });
 
-test("GET/booking/{id} returns a valid response", async ({ request }) => {
+test("GET/booking/{id} returns a valid response", async ({ request, bookingId }) => {
 
-    const createResponse = await request.post("booking/", {
-        data: {
-            ...bookingData
-        }
-    });
-    expect(createResponse.status()).toBe(200);
-    const { bookingid } = await createResponse.json();
-
-    const response = await request.get(`booking/${bookingid}`);
+    const response = await request.get(`booking/${bookingId}`);
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
     expect(responseBody).not.toEqual({});
@@ -58,15 +45,8 @@ test("GET/booking/{id} returns a valid response", async ({ request }) => {
     expect(responseBody.bookingdates.checkout).toBe("2019-01-01");
     expect(responseBody.additionalneeds).toBe("Breakfast");
 });
-test("GET/booking/firsname&lastname filters returns valid booking IDs", async ({ request }) => {
-    const createResponse = await request.post("booking/", {
-        data: {
-            ...bookingData
-        }
-    });
-    expect(createResponse.status()).toBe(200);
-    const { bookingid } = await createResponse.json();
-
+test("GET/booking/firsname&lastname filters returns valid booking IDs", async ({ request, bookingId }) => {
+   
     const response = await request.get("booking?firstname=Jim&lastname=Brown");
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
@@ -74,16 +54,10 @@ test("GET/booking/firsname&lastname filters returns valid booking IDs", async ({
     for (const value of responseBody) {
         expect(value).toHaveProperty("bookingid");
     }
-    expect(responseBody).toContainEqual({ bookingid });
+    expect(responseBody).toContainEqual({ bookingid: bookingId });
 });
-test("GET/booking/checkin&checkout filters returns valid booking IDs", async ({ request }) => {
-    const createResponse = await request.post("booking/", {
-        data: {
-            ...bookingData
-        }
-    });
-    expect(createResponse.status()).toBe(200);
-    const { bookingid } = await createResponse.json();
+test("GET/booking/checkin&checkout filters returns valid booking IDs", async ({ request, bookingId }) => {
+
 
     const response = await request.get("booking?checkin=2017-12-31&checkout=2020-01-01");
     expect(response.status()).toBe(200);
@@ -92,5 +66,5 @@ test("GET/booking/checkin&checkout filters returns valid booking IDs", async ({ 
     for (const value of responseBody) {
         expect(value).toHaveProperty("bookingid");
     }
-    expect(responseBody).toContainEqual({ bookingid });
+    expect(responseBody).toContainEqual({ bookingid: bookingId });
 });

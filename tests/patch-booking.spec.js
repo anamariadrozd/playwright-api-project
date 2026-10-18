@@ -1,42 +1,12 @@
-import { test, expect } from '@playwright/test';
-import bookingData from './test-data/booking-data.js';
-import validCredentials from './test-data/auth-credentials.js';
+import { test, expect } from './fixtures/booking.fixture.js';
 
+test("PATCH partially updates an existing booking", async ({ request, authToken, bookingId}) => {
 
-test("PATCH partially updates an existing booking", async ({ request }) => {
-
-    // create booking
-    const createResponse = await request.post("booking/", {
-        data: {
-            ...bookingData
-        }
-    });
-
-    expect(createResponse.status()).toBe(200);
-
-    const createBody = await createResponse.json();
-    const bookingId = createBody.bookingid;
-
-
-    // auth
-    const authResponse = await request.post("auth", {
-        data: {
-            ...validCredentials
-        }
-    });
-
-    expect(authResponse.status()).toBe(200);
-
-    const authBody = await authResponse.json();
-    const token = authBody.token;
-
-
-    // patch
     const patchResponse = await request.patch(`booking/${bookingId}`, {
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Cookie": `token=${token}`
+            "Cookie": `token=${authToken}`
         },
         data: {
             firstname: "John"
@@ -58,20 +28,8 @@ test("PATCH partially updates an existing booking", async ({ request }) => {
 });
 
 
-test("PATCH without token returns 403", async ({ request }) => {
+test("PATCH without token returns 403", async ({ request, bookingId }) => {
 
-    // create booking
-    const createResponse = await request.post("booking/", {
-        data: {
-            ...bookingData,
-        }
-    });
-
-    expect(createResponse.status()).toBe(200);
-
-    const createBody = await createResponse.json();
-    const bookingId = createBody.bookingid;
-    // patch
     const patchResponse = await request.patch(`booking/${bookingId}`, {
         headers: {
             "Content-Type": "application/json",
