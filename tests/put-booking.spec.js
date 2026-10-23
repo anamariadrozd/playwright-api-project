@@ -2,27 +2,35 @@ import bookingData from './test-data/booking-data.js';
 import { test, expect } from './fixtures/booking.fixture.js';
 
 test("PUT updates an existing booking", async ({ request, authToken, bookingId }) => {
-   
+
     const response = await request.put(`booking/${bookingId}`, {
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
             "Cookie": `token=${authToken}`
         },
-         data: {
-            ...bookingData
+        data: {
+            firstname: 'Alex',
+            lastname: 'Smith',
+            totalprice: 250,
+            depositpaid: false,
+            bookingdates: {
+                checkin: '2026-11-01',
+                checkout: '2026-11-05'
+            },
+            additionalneeds: 'Lunch'
         },
     })
     expect(response.status()).toBe(200);
 
     const responseBody = await response.json();
-    expect(responseBody.firstname).toBe("Jim");
-    expect(responseBody.lastname).toBe("Brown");
-    expect(responseBody.totalprice).toBe(111);
-    expect(responseBody.depositpaid).toBe(true);
-    expect(responseBody.bookingdates.checkin).toBe("2018-01-01");
-    expect(responseBody.bookingdates.checkout).toBe("2019-01-01");
-    expect(responseBody.additionalneeds).toBe("Breakfast");
+    expect(responseBody.firstname).toBe("Alex");
+    expect(responseBody.lastname).toBe("Smith");
+    expect(responseBody.totalprice).toBe(250);
+    expect(responseBody.depositpaid).toBe(false);
+    expect(responseBody.bookingdates.checkin).toBe("2026-11-01");
+    expect(responseBody.bookingdates.checkout).toBe("2026-11-05");
+    expect(responseBody.additionalneeds).toBe("Lunch");
 
 });
 
@@ -34,7 +42,7 @@ test("PUT without token returns 403", async ({ request, bookingId }) => {
             "Accept": "application/json",
 
         },
-         data: {
+        data: {
             ...bookingData
         },
     })
