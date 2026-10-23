@@ -6,12 +6,17 @@
   "scripts": {
     "test": "playwright test"
   },
-  "keywords": ["API","automation","playwright"],
+  "keywords": [
+    "API",
+    "automation",
+    "playwright"
+  ],
   "author": "Ana",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
-    "@types/node": "^26.5.0"
+    "@types/node": "^26.5.0",
+    "dotenv": "^18.0.8"
   }
 }

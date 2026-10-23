@@ -1,8 +1,6 @@
-import bookingData from './test-data/booking-data.js';
 import { test, expect } from './fixtures/booking.fixture.js';
 
 test("GET/booking returns a valid response", async ({ request, bookingId }) => {
-
 
     const response = await request.get("booking");
     expect(response.status()).toBe(200);
@@ -45,7 +43,7 @@ test("GET/booking/{id} returns a valid response", async ({ request, bookingId })
     expect(responseBody.bookingdates.checkout).toBe("2019-01-01");
     expect(responseBody.additionalneeds).toBe("Breakfast");
 });
-test("GET/booking/firsname&lastname filters returns valid booking IDs", async ({ request, bookingId }) => {
+test("GET/booking/firstname&lastname filters returns valid booking IDs", async ({ request, bookingId }) => {
    
     const response = await request.get("booking?firstname=Jim&lastname=Brown");
     expect(response.status()).toBe(200);
