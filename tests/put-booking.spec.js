@@ -1,14 +1,11 @@
 import bookingData from './test-data/booking-data.js';
 import { test, expect } from './fixtures/booking.fixture.js';
+import { requestHeaders } from './helpers/request-headers.js';
 
 test("PUT updates an existing booking", async ({ request, authToken, bookingId }) => {
 
     const response = await request.put(`booking/${bookingId}`, {
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Cookie": `token=${authToken}`
-        },
+        headers: requestHeaders(authToken),
         data: {
             firstname: 'Alex',
             lastname: 'Smith',
@@ -37,27 +34,18 @@ test("PUT updates an existing booking", async ({ request, authToken, bookingId }
 
 test("PUT without token returns 403", async ({ request, bookingId }) => {
     const response = await request.put(`booking/${bookingId}`, {
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-
-        },
+        headers: requestHeaders(),
         data: {
             ...bookingData
         },
     })
     expect(response.status()).toBe(403);
-
 });
 
 test("PUT for a non-existing booking returns 405", async ({ request, authToken }) => {
 
     const response = await request.put("booking/9999999", {
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Cookie": `token=${authToken}`
-        },
+        headers: requestHeaders(authToken),
         data: {
             ...bookingData
         },
